@@ -44,6 +44,7 @@ function handleCommand(msg) {
 
 function handleDelete(msg) {
   if (msg.content.indexOf(averageSRResult) > -1) {
+    console.log('> delete')
     msg.delete()
   }
 }
@@ -53,6 +54,8 @@ async function handleAverageSRCommand(msg) {
   let players = playersStr.split(",").map(s => s.trim());
 
   const r = await playersToResultMessage(players);
+  console.log('>', msg.content)
+  console.log('<', r)
   msg.reply(r);
 }
 
