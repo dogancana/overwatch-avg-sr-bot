@@ -4,6 +4,7 @@ require("isomorphic-fetch");
 require('dotenv').config()
 const Discord = require("discord.js");
 const cheerio = require("cheerio");
+const http = require('http');
 
 const token = process.env.DISCORD_APP_TOKEN;
 const averageSRCommand = "!avgsr";
@@ -27,6 +28,12 @@ client.on("messageReactionRemoveAll", handleCommand);
 client.on("messageReactionAdd", r => handleDelete(r.message));
 
 client.login(token);
+
+// Dummy
+http.createServer((req, res) => {
+  res.write('OK')
+  res.end()
+}).listen(process.env.PORT || 80)
 
 function handleCommand(msg) {
   const c = msg.content;
