@@ -1,10 +1,10 @@
 // https://discordapp.com/oauth2/authorize?client_id=552455249621811210&scope=bot
 
 require("isomorphic-fetch");
-require('dotenv').config()
+require("dotenv").config();
 const Discord = require("discord.js");
 const cheerio = require("cheerio");
-const http = require('http');
+const http = require("http");
 
 const token = process.env.DISCORD_APP_TOKEN;
 const averageSRCommand = "!avgsr";
@@ -30,10 +30,20 @@ client.on("messageReactionAdd", r => handleDelete(r.message));
 client.login(token);
 
 // Dummy
-http.createServer((req, res) => {
-  res.write('OK')
-  res.end()
-}).listen(process.env.PORT || 80)
+http
+  .createServer((req, res) => {
+    res.write("OK");
+    res.end();
+  })
+  .listen(process.env.PORT || 80);
+
+// Keep me alive
+if (process.env.NODE_ENV === "production") {
+  setInterval(
+    () => fetch("https://overwatch-average-sr-bot.herokuapp.com/"),
+    1000 * 60 * 5
+  );
+}
 
 function handleCommand(msg) {
   const c = msg.content;
@@ -44,8 +54,8 @@ function handleCommand(msg) {
 
 function handleDelete(msg) {
   if (msg.content.indexOf(averageSRResult) > -1) {
-    console.log('> delete')
-    msg.delete()
+    console.log("> delete");
+    msg.delete();
   }
 }
 
@@ -54,8 +64,8 @@ async function handleAverageSRCommand(msg) {
   let players = playersStr.split(",").map(s => s.trim());
 
   const r = await playersToResultMessage(players);
-  console.log('>', msg.content)
-  console.log('<', r)
+  console.log(">", msg.content);
+  console.log("<", r);
   msg.reply(r);
 }
 
