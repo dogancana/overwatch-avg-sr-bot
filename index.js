@@ -9,7 +9,8 @@ const http = require("http");
 const token = process.env.DISCORD_APP_TOKEN;
 const averageSRCommand = "!avgsr";
 const averageSRResult = "Average SR Result:";
-const carrerUrl = "https://www.overbuff.com/players";
+const overBuffUrl = "https://www.overbuff.com/players";
+const playOWUrl = "https://playoverwatch.com/career";
 
 const client = new Discord.Client();
 
@@ -100,19 +101,15 @@ async function populatePlayerRanks(players) {
   return Promise.all(
     players.map(async player => {
       if (player.isValid) {
-        const response = await fetch(
-          `${carrerUrl}/pc/${player.btag.replace("#", "-")}`
-        );
-        const text = await response.text();
-        const $ = cheerio.load(text);
-        const rank = $(".player-skill-rating")
-          .first()
-          .text();
-        const rankNumber = parseInt(rank, 10);
+
+        let rank = await getPlayerRank(playOWUrl, player.btag, '.competitive-rank')
+        if (!rank) {
+          rank = await getPlayerRank(overBuffUrl, player.btag, '.player-skill-rating');
+        }
 
         return {
           ...player,
-          rank: rankNumber !== NaN ? rankNumber : undefined
+          rank
         };
       } else {
         return {
@@ -122,6 +119,19 @@ async function populatePlayerRanks(players) {
       }
     })
   );
+}
+
+async function getPlayerRank(url, btag, selector) {
+  const response = await fetch(
+    `${url}/pc/${btag.replace("#", "-")}`
+  );
+  const text = await response.text();
+  const $ = cheerio.load(text);
+  const rank = $(selector)
+    .first()
+    .text();
+  const rankNumber = parseInt(rank, 10);
+  return rankNumber !== NaN ? rankNumber : null;
 }
 
 function isBattleTag(str) {
